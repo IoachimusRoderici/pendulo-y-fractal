@@ -1,7 +1,7 @@
 module Campos
 """
-En este módulo se definen los distintos campos de aceleración que actuan o pueden
-atuar sobre el péndulo.
+En este módulo se definen los distintos campos de aceleración que actúan o pueden
+actuar sobre el péndulo.
 
 Todos los campos reciben como primer argumento el estado del péndulo en un Vector4D
 con (θ, φ, dθ/dt, dφ/dt), y como keyword arguments los parámetros que necesiten.

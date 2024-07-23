@@ -1,4 +1,4 @@
-# Pendulo y Fractal
+# Péndulo y Fractal
 
 Recreando la simulación de [mi video favorito](https://www.youtube.com/watch?v=C5Jkgvw-Z6E) de YouTube.
 
@@ -23,7 +23,7 @@ Definimos el origen de coordenadas en el punto fijo del péndulo.
 
 El sistema de coordenadas cartesianas tiene los ejes $x$ e $y$ en el plano horizontal y el eje $z$ apuntando hacia arriba.
 
-Pero las cuentas se hacen en corrdenadas esféricas.
+Pero las cuentas se hacen en coordenadas esféricas.
 El sistema de coordenadas esféricas mide $\theta$ desde el eje $-z$ hacia arriba, y $\varphi$ desde el eje $x$ hacia el eje $y$.
 
 ![sistema de coordenadas](figures/coordenadas.png)
