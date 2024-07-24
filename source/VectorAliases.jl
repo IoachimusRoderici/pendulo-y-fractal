@@ -1,9 +1,9 @@
-module VectorAliases
 """
 En este módulo se definen aliases cómodos para vectores de números reales.
 
 Se asume que se importó StaticArrays antes de cargar este módulo.
 """
+module VectorAliases
 
 using ..StaticArrays
 

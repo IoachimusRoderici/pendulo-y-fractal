@@ -2,34 +2,20 @@
 
 Recreando la simulación de [mi video favorito](https://www.youtube.com/watch?v=C5Jkgvw-Z6E) de YouTube.
 
-## El Sistema a Ser Simulado
+## ¿De qué va?
 
-El sistema que queremos simular es un péndulo formado por una bola de metal ferromagnético que cuelga de un hilo sobre tres imanes:
+Es una simulación de un péndulo que además de la gravedad está sometido a la fuerza de tres imanes:
 
 ![foto](figures/foto_del_experimento.png)
 
-El sistema tiene muchos parámetros que podrían ser variados y/o generalizados. Definimos el siguiente conjunto de valores como la configuración canónica:
+Según el video, si se suelta el péndulo desde cualquier posición inicial, éste termina deteniéndose sobre uno de los tres imanes.
 
-- Longitud del péndulo: 35 cm
-- Altura del péndulo: 36 cm
-- Masa del péndulo: TBD
-- Número de imanes: 3
-- Distribución de los imanes: triangular centrada, radio 10 cm
-- Intensidad de los imanes: TBD
+El objetivo principal de la simulación es mapear sobre cual imán se detiene el péndulo para cada posición inicial, lo cual genera un fractal:
 
-## Coordenadas
+![captura de pantalla](figures/fractal_screenshot.png)
 
-Definimos el origen de coordenadas en el punto fijo del péndulo.
+## ¿Qué hay acá?
 
-El sistema de coordenadas cartesianas tiene los ejes $x$ e $y$ en el plano horizontal y el eje $z$ apuntando hacia arriba.
+En este repositorio intento replicar la simulación del video, y hacer alguna visualización interactiva.
 
-Pero las cuentas se hacen en coordenadas esféricas.
-El sistema de coordenadas esféricas mide $\theta$ desde el eje $-z$ hacia arriba, y $\varphi$ desde el eje $x$ hacia el eje $y$.
-
-![sistema de coordenadas](figures/coordenadas.png)
-
-El estado del sistema está definido por la posición y velocidad del péndulo. Esta información se representa en un `Vector4D`:
-
-$$
-\mathbf{u} = (\theta, \varphi, \dot{\theta}, \dot{\varphi})
-$$
+El código de la simulación, junto con una descripción del modelo usado, está en `source/modelo`.
