@@ -6,22 +6,15 @@ Los campos de aceleración están definidos en el submódulo `Campos`.
 """
 module Modelo
 
+export Campos
+
 using ..VectorAliases
 
-export Campos
+include("../Coordenadas.jl")
+using .Coordenadas
 
 include("Campos.jl")
 using .Campos
-
-"""
-Recibe coordenadas esféricas y las convierte a cartesianas xy.
-"""
-function esféricas_a_cartesianas(θφ, r)
-    θ, φ = θφ
-    x = r * sin(θ) * cos(φ)
-    y = r * sin(θ) * sin(φ)
-    return Vector2D(x, y)
-end
 
 """
 Recibe un campo de aceleración y devuelve la función de evolución del sistema,

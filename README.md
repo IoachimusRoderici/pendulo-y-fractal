@@ -19,3 +19,5 @@ El objetivo principal de la simulación es mapear sobre cual imán se detiene el
 En este repositorio intento replicar la simulación del video, y hacer alguna visualización interactiva.
 
 El código de la simulación, junto con una descripción del modelo usado, está en `source/modelo`.
+
+El código de los gráficos e interacción está en `source/gui`.
