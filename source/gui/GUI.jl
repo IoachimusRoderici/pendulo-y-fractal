@@ -11,63 +11,79 @@ using .Coordenadas
 
 
 """
-Genera una animación interactiva de la trayectoria del sistema dado.
+Genera una animación de la trayectoria del sistema dado.
 - sistema: el sistema a animar.
-- time_step: intervalo de tiempo usado para la integración.
-- medio_ancho: la mitad del ancho del plot.
 - figure_kwargs se pasa al constructor de Figure.
 - axis_kwargs se pasa al constructor de Axis.
 - hide_decorations se pasa a hide_decorations.
+
+Devuelve un diccionario con todos los objetos asociados, que son mutables y pueden
+ser modificados para configurar la animación:
+- sistema, params: El sistema y sus parámetros.
+- fig, ax:         La figura y el eje.
+- ancho:           La mitad del ancho de la figura (en unidades del sistema).
+- time_step:       La cantidad de tiempo que el sistema avanza entre frames.
+- time_correction: Corrección en el tiempo dormido entre frames (se suma al time_step).
+- paso:            La cantidad de pasos (frames) que avanzó la animación.
+- pos:             La posición actual (en coordenadas xy).
+- avanzando:       true si la animación está avanzando, false si no.
 """
-function trayectoria_interactiva(sistema;
-                                 medio_ancho = nothing,
-                                 time_step = 0.01,
-                                 figure_kwargs = NamedTuple(),
-                                 axis_kwargs = NamedTuple(),
-                                 hide_decorations = NamedTuple()
-                                )
-    #sistema = non_adaptive(sistema, time_step)
+function trayectoria_animada(sistema;
+                             figure_kwargs = NamedTuple(),
+                             axis_kwargs = NamedTuple(),
+                             hide_decorations = NamedTuple()
+                            )
     parámetros = current_parameters(sistema)
 
-    if isnothing(medio_ancho)
-        medio_ancho = 1.1parámetros.longitud
+    # Crear Observables para evolucionar el sistema y seguir su estado:
+    time_step = Observable(0.01) # valor por defecto, puede ser cambiado después.
+    pasos = evolucionador(sistema, time_step)
+    posición = lift(pasos) do pasos
+        Point2f(posición_proyectada(current_state(sistema), parámetros.longitud))
     end
-
-    fig, ax = get_trajectory_figure(; medio_ancho, figure_kwargs, axis_kwargs, hide_decorations)
     
-    paso = Observable(0)
-    on(paso) do paso
-        step!(sistema, time_step)
-    end
-
-    estado_actual = lift(paso) do paso
-        current_state(sistema)
-    end
-
-    posición = lift(estado_actual) do estado_actual
-        Point2f(posición_proyectada(estado_actual, parámetros.longitud))
-    end
-
+    # Crear la figura:
+    medio_ancho = 1.1 * parámetros.longitud # valor por defecto, puede ser cambiado después.
+    fig, ax = get_trajectory_figure(; medio_ancho, figure_kwargs, axis_kwargs, hide_decorations)
     scatter!(ax, posición)
 
-    going = Observable(false)
-    on(going) do going
-        @async for i in 1:1000
-            paso[] = paso[] + 1
+    # Bucle principal de la animación, controlado por el valor de avanzando:
+    time_correction = Observable(0.0) # valor por defecto, puede ser cambiado después.
+    avanzando = Observable(false)
+    on(avanzando) do _
+        @async while avanzando[]
+            pasos[] += 1
+            sleep(time_step[] + time_correction[])
+
+            isopen(fig.scene) || (avanzando[] = false)
         end
     end
 
-    return Dict(:fig=>fig, :ax=>ax, :paso=>paso, :estado=>estado_actual, :pos=>posición, :going=>going)
+    return Dict(:sistema         => sistema,
+                :params          => parámetros,
+                :fig             => fig,
+                :ax              => ax,
+                :time_step       => time_step,
+                :time_correction => time_correction,
+                :paso            => pasos,
+                :pos             => posición,
+                :avanzando       => avanzando
+               )
 end
 
 """
-Devuelve una copia sel sistema dado, modificada para que la evolución
-en el tiempo no sea adaptive.
-dt es el paso de tiempo que se usa para evolucionar el nuevo sistema.
+Devuelve un observable que al ser notificado hace avanzar al sistema
+un tiempo time_step_obs (que es un observable).
+
+El valor del observable devuelto es el número de pasos.
 """
-function non_adaptive(sistema, dt)
-    newdiffeq = (sistema.diffeq..., adaptive = false, dt = dt)
-    return CoupledODEs(sistema, newdiffeq)
+function evolucionador(sistema, time_step_obs)
+    pasos = Observable(0)
+    on(pasos) do _
+        step!(sistema, time_step_obs[])
+    end
+
+    return pasos
 end
 
 """
