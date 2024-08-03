@@ -20,7 +20,7 @@ include("mis_observables.jl")
 Agrega controles a la animación de la trayectoria.
 
 """
-function agregar_contoles!(objetos)
+function agregar_controles!(objetos)
     label = lift(objetos.avanzando) do avanzando
         avanzando ? "pausa" : "avanzar"
     end
