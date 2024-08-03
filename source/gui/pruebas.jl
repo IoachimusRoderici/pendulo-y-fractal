@@ -21,5 +21,6 @@ function test_gravedad(; estado_inicial = Vector4D(1, 0, 0, 1),
 end
 
 c = test_gravedad()
-c.avanzando[] = true
+#boton = GUI.agregar_contoles!(c)
+#c.avanzando[] = true
 c.fig

@@ -16,6 +16,24 @@ using .Coordenadas
 
 include("mis_observables.jl")
 
+"""
+Agrega controles a la animación de la trayectoria.
+
+"""
+function agregar_contoles!(objetos)
+    label = lift(objetos.avanzando) do avanzando
+        avanzando ? "pausa" : "avanzar"
+    end
+    boton = Button(objetos.fig; label, tellwidth=false)
+
+    on(boton.clicks) do _
+        objetos.avanzando[] = !objetos.avanzando[]
+    end
+
+    objetos.fig[2, 1][1,1] = boton
+
+    return boton
+end
 
 """
 Genera una animación de la trayectoria del sistema dado.
