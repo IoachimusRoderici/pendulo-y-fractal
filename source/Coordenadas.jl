@@ -4,6 +4,8 @@ y otras operaciones asociadas.
 """
 module Coordenadas
 
+using DynamicalSystems
+
 export esféricas_a_cartesianas,
        esféricas_a_cartesianas_proyectadas,
        posición_proyectada
@@ -32,10 +34,8 @@ function esféricas_a_cartesianas(θφ, r)
 end
 
 """
-Recibe el vector de estado y el radio, y devuelve las coordenadas xy actuales.
+Devuelve las coordenadas xy actuales del sistema.
 """
-function posición_proyectada(estado, radio)
-    return esféricas_a_cartesianas_proyectadas(estado[1:2], radio)
-end
+posición_proyectada(sistema) = esféricas_a_cartesianas_proyectadas(current_state(sistema)[1:2], current_parameter(sistema, :longitud))
 
 end
