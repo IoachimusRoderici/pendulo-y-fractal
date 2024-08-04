@@ -6,14 +6,8 @@ de el sistema y de los gráficos y animación.
 """
 Devuelve un Observable de la posición del sistema, proyectada a
 coordenadas xy, como un Point2f.
-- sistema: el sistema a observar.
-- parámetros: los parámetros del sistema
 """
-function get_posición_proyectada_observable(sistema_observable, parámetros)
-    lift(sistema_observable) do sistema
-        Point2f(posición_proyectada(current_state(sistema), parámetros.longitud))
-    end
-end
+get_posición_proyectada_observable(sistema) = @lift Point2f(posición_proyectada($sistema))
 
 """
 Devuelve un observable que al ser notificado hace avanzar al sistema
