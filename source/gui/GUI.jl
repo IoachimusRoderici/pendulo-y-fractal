@@ -44,7 +44,7 @@ Genera una animación de la trayectoria del sistema dado.
 - hide_decorations se pasa a hide_decorations.
 
 Devuelve una NamedTuple con todos los objetos asociados:
-- sistema, params: El sistema y sus parámetros.
+- sistema:         El sistema (Observable).
 - fig, ax:         La figura y el eje.
 - time_step:       La cantidad de tiempo que el sistema avanza entre frames.
 - time_correction: Corrección en el tiempo dormido entre frames (se suma al time_step).
@@ -85,7 +85,7 @@ Crea  los primeros objetos necesarios para graficar el sistema.
 - hide_decorations se pasa a hide_decorations.
 
 Devuelve una NamedTuple con:
-- sistema, params: El sistema (Observable) y sus parámetros.
+- sistema:         El sistema (Observable).
 - pos:             La posición actual (en coordenadas xy).
 - avanzando:       true si la animación está avanzando, false si no. (valor inicial: false)
 - fig, ax:         La figura y el eje de la trayectoria.
@@ -101,19 +101,18 @@ function get_sistema_animado(sistema;
                             )
     # Crear Observables para evolucionar el sistema y seguir su estado:
     sistema_observable = Observable(sistema)
-    params = current_parameters(sistema)
 
     time_step = Observable(0.005)
     pasos = get_observable_evolucionador(sistema_observable, time_step; exact=time_step_exact)
-    pos = get_posición_proyectada_observable(sistema_observable, params)
+    pos = get_posición_proyectada_observable(sistema_observable)
     
     # Crear la figura:
-    medio_ancho = 1.1 * params.longitud # valor por defecto, puede ser cambiado después.
+    medio_ancho = 1.1 * current_parameter(sistema, :longitud) # valor por defecto, puede ser cambiado después.
     fig, ax = get_trajectory_figure(; medio_ancho, figure_kwargs, axis_kwargs, hide_decorations)
 
     time_correction, avanzando = agregar_bucle_de_animación(time_step, pasos, fig)
 
-    return (; sistema=sistema_observable, params, pos, avanzando,
+    return (; sistema=sistema_observable, pos, avanzando,
               fig, ax, time_step, time_correction, pasos)
 end
 
