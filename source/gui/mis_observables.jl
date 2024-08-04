@@ -77,3 +77,12 @@ function get_trayectoria_observable(posición_observable)
 
     return trayectoria
 end
+
+"""
+Calls empty! on the contents of an Observable, followed by notify.
+"""
+function Base.empty!(obs::Observable)
+    empty!(obs[])
+    notify(obs)
+    return nothing
+end

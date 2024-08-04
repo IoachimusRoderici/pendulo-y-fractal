@@ -18,25 +18,32 @@ include("mis_observables.jl")
 
 """
 Agrega controles a la animación de la trayectoria.
-- fig: La figura.
-- avanzando: El observable que controla si el sistema está avanzando.
-- donde: índices del layout de la figura donde poner los controles.
+- fig:         La figura.
+- avanzando:   El observable que controla si el sistema está avanzando.
+- trayectoria: El observable de la trayectoria.
+- donde:       Índices del layout de la figura donde poner los controles.
 
-Devuelve una NamedTuple con los objetos asociados.
+Devuelve una NamedTuple con los objetos creados.
 """
-function agregar_controles!(fig, avanzando; donde=(2,1))
+function agregar_controles!(fig, avanzando, trayectoria; donde=(2,1))
+    buttoncolor = :lightblue1
     layout = fig[donde...] = GridLayout(tellwidth = false)
 
-    # Agregar botón de pausa:
-    label = @lift $avanzando ? "pausa" : "avanzar"
-    botón_pausa = Button(fig; label, tellwidth=false)
+    # Botón de pausa:
+    label = @lift $avanzando ? "Pausa" : "Avanzar"
+    botón_pausa = layout[1,1] = Button(fig; label, buttoncolor, width=65)
+
     on(botón_pausa.clicks) do _
         avanzando[] = !avanzando[]
     end
 
-    layout[1,1] = botón_pausa
+    # Botón para borrar la trayectoria:
+    botón_borrar_trayectoria = layout[1,2] = Button(fig; label="Borrar Trayectoria", buttoncolor)
+    on(botón_borrar_trayectoria.clicks) do _
+        empty!(trayectoria)
+    end
 
-    return (; layout, botón_pausa)
+    return (; layout, botón_pausa, botón_borrar_trayectoria)
 end
 
 """
@@ -80,7 +87,7 @@ function trayectoria_animada(sistema;
 
     # Agregar los controles:
     if !isnothing(controles)
-        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.avanzando, donde=controles)
+        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.avanzando, trayectoria_observable, donde=controles)
     else
         objetos_de_los_controles = nothing
     end
