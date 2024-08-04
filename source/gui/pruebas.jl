@@ -17,10 +17,8 @@ function test_gravedad(; estado_inicial = Vector4D(1, 0, 0, 1),
                       )
     f = Modelo.función_de_evolución(Campos.gravedad)
     sistema = CoupledODEs(f, estado_inicial, params)
-    GUI.trayectoria_animada(sistema)
 end
 
-c = test_gravedad()
-boton = GUI.agregar_controles!(c)
-#c.avanzando[] = true
+sistema = test_gravedad()
+c = GUI.trayectoria_animada(sistema)
 c.fig
