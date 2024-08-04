@@ -1,12 +1,13 @@
+using Revise
 using StaticArrays, DynamicalSystems, GLMakie
 
-include("../VectorAliases.jl")
+includet("../VectorAliases.jl")
 using .VectorAliases
 
-include("../modelo/Modelo.jl")
+includet("../modelo/Modelo.jl")
 using .Modelo
 
-include("GUI.jl")
+includet("GUI.jl")
 using .GUI
 
 """
