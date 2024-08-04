@@ -18,30 +18,35 @@ include("mis_observables.jl")
 
 """
 Agrega controles a la animación de la trayectoria.
+- fig: La figura.
+- avanzando: El observable que controla si el sistema está avanzando.
+- donde: índices del layout de la figura donde poner los controles.
 
+Devuelve una NamedTuple con los objetos asociados.
 """
-function agregar_controles!(objetos)
-    label = lift(objetos.avanzando) do avanzando
-        avanzando ? "pausa" : "avanzar"
+function agregar_controles!(fig, avanzando; donde=(2,1))
+    layout = fig[donde...] = GridLayout(tellwidth = false)
+
+    # Agregar botón de pausa:
+    label = @lift $avanzando ? "pausa" : "avanzar"
+    botón_pausa = Button(fig; label, tellwidth=false)
+    on(botón_pausa.clicks) do _
+        avanzando[] = !avanzando[]
     end
-    boton = Button(objetos.fig; label, tellwidth=false)
 
-    on(boton.clicks) do _
-        objetos.avanzando[] = !objetos.avanzando[]
-    end
+    layout[1,1] = botón_pausa
 
-    objetos.fig[2, 1][1,1] = boton
-
-    return boton
+    return (; layout, botón_pausa)
 end
 
 """
 Genera una animación de la trayectoria del sistema dado.
-- sistema: el sistema a animar.
-- time_step_exact dice si los pasos de tiempo tienen que ser exactos.
-- figure_kwargs se pasa al constructor de Figure.
-- axis_kwargs se pasa al constructor de Axis.
-- hide_decorations se pasa a hide_decorations.
+- sistema:          El sistema a animar.
+- controles:        La ubicación de los controles en el layout de la figura, o nothing para no incluirlos.
+- time_step_exact:  Dice si los pasos de tiempo tienen que ser exactos.
+- figure_kwargs:    Se pasa al constructor de Figure.
+- axis_kwargs:      Se pasa al constructor de Axis.
+- hide_decorations: Se pasa a hide_decorations.
 
 Devuelve una NamedTuple con todos los objetos asociados:
 - sistema:         El sistema (Observable).
@@ -49,12 +54,13 @@ Devuelve una NamedTuple con todos los objetos asociados:
 - time_step:       La cantidad de tiempo que el sistema avanza entre frames.
 - time_correction: Corrección en el tiempo dormido entre frames (se suma al time_step).
 - pasos:           La cantidad de pasos (frames) que avanzó la animación.
-- pos:             La posición actual (en coordenadas xy).
 - avanzando:       true si la animación está avanzando, false si no.
-- punto_actual:    NamedTuple con el markersize y el plot del punto actual.
-- trayectoria:     NamedTuple con los objetos asociados al plot de la trayectoria.
+- pos:             La posición actual (en coordenadas xy), y su plot.
+- trayectoria:     La trayectoria del sistema, y su plot.
+- controles:       Los objetos asociados a los controles.
 """
 function trayectoria_animada(sistema;
+                             controles = (2, 1),
                              time_step_exact = false,
                              figure_kwargs = NamedTuple(),
                              axis_kwargs = NamedTuple(),
@@ -69,11 +75,17 @@ function trayectoria_animada(sistema;
 
 
     # Plotear la posición actual:
-    markersize = Observable(10)
-    punto_actual_plot = scatter!(objetos.ax, objetos.pos; markersize)
-    punto_actual = (; markersize, plot = punto_actual_plot)
+    pos_plot = scatter!(objetos.ax, objetos.pos)
+    pos = (; observable = objetos.pos, plot = pos_plot)
 
-    return (; objetos..., punto_actual, trayectoria)
+    # Agregar los controles:
+    if !isnothing(controles)
+        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.avanzando, donde=controles)
+    else
+        objetos_de_los_controles = nothing
+    end
+
+    return (; objetos..., pos, trayectoria, controles=objetos_de_los_controles)
 end
 
 """
