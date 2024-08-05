@@ -9,7 +9,7 @@ y pueden ser modificados y notificados para actualizar cosas.
 """
 module GUI
 
-using Makie, DynamicalSystems, DataStructures
+using Makie, DynamicalSystems, DataStructures, Format
 
 include("../Coordenadas.jl")
 using .Coordenadas
@@ -19,13 +19,14 @@ include("mis_observables.jl")
 """
 Agrega controles a la animación de la trayectoria.
 - fig:         La figura.
+- sistema:     Observable del sistema.
 - avanzando:   El observable que controla si el sistema está avanzando.
 - trayectoria: El observable de la trayectoria.
 - donde:       Índices del layout de la figura donde poner los controles.
 
 Devuelve una NamedTuple con los objetos creados.
 """
-function agregar_controles!(fig, avanzando, trayectoria; donde=(2,1))
+function agregar_controles!(fig, sistema, avanzando, trayectoria; donde=(2,1))
     buttoncolor = :lightblue1
     layout = fig[donde...] = GridLayout(tellwidth = false)
 
@@ -43,7 +44,13 @@ function agregar_controles!(fig, avanzando, trayectoria; donde=(2,1))
         empty!(trayectoria)
     end
 
-    return (; layout, botón_pausa, botón_borrar_trayectoria)
+    # Medidor de velocidad:
+    velocidades = get_medidor_de_velocidad(sistema, buffer_length=250)
+    texto = @lift format("{1:.1f}X  {2:0>3.0f}fps", $velocidades.velocidad_relativa, $velocidades.framerate)
+    texto_velocidades = Label(layout[1,3], texto, fontsize=17)
+
+
+    return (; layout, botón_pausa, botón_borrar_trayectoria, texto_velocidades)
 end
 
 """
@@ -87,7 +94,7 @@ function trayectoria_animada(sistema;
 
     # Agregar los controles:
     if !isnothing(controles)
-        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.avanzando, trayectoria_observable, donde=controles)
+        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.sistema, objetos.avanzando, trayectoria_observable, donde=controles)
     else
         objetos_de_los_controles = nothing
     end
