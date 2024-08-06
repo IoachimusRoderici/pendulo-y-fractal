@@ -18,17 +18,19 @@ include("mis_observables.jl")
 
 """
 Agrega controles a la animación de la trayectoria.
-- fig:         La figura.
-- sistema:     Observable del sistema.
-- avanzando:   El observable que controla si el sistema está avanzando.
-- trayectoria: El observable de la trayectoria.
-- donde:       Índices del layout de la figura donde poner los controles.
+- fig:             La figura.
+- sistema:         Observable del sistema.
+- avanzando:       El observable que controla si el sistema está avanzando.
+- trayectoria:     El observable de la trayectoria.
+- time_step:       El observable del tiempo avanzado en cada frame.
+- time_correction: El observable de la corrección a time_step.
+- donde:           Índices del layout de la figura donde poner los controles.
 
 Devuelve una NamedTuple con los objetos creados.
 """
-function agregar_controles!(fig, sistema, avanzando, trayectoria; donde=(2,1))
+function agregar_controles!(fig, sistema, avanzando, trayectoria, time_step, time_correction; donde=(2,1))
     buttoncolor = :lightblue1
-    layout = fig[donde...] = GridLayout(tellwidth = false)
+    layout = GridLayout(fig[donde...], tellwidth = false)
 
     # Botón de pausa:
     label = @lift $avanzando ? "Pausa" : "Avanzar"
@@ -45,12 +47,18 @@ function agregar_controles!(fig, sistema, avanzando, trayectoria; donde=(2,1))
     end
 
     # Medidor de velocidad:
-    velocidades = get_medidor_de_velocidad(sistema, buffer_length=250)
+    velocidades = get_medidor_de_velocidad(sistema, buffer_length=100)
     texto = @lift format("{1:.1f}X  {2:0>3.0f}fps", $velocidades.velocidad_relativa, $velocidades.framerate)
     texto_velocidades = Label(layout[1,3], texto, fontsize=17)
 
+    # Sliders de tiempo:
+    time_correction_range = @lift -$time_step:0.001:0.05
+    sliders = SliderGrid(layout[2,:],
+                         (label="Speed Correction", range=time_correction_range, startvalue=time_correction[], format="{:.3f}s")
+                        )
+    repeat!(time_correction, sliders.sliders[1].value)
 
-    return (; layout, botón_pausa, botón_borrar_trayectoria, texto_velocidades)
+    return (; layout, botón_pausa, botón_borrar_trayectoria, texto_velocidades, sliders)
 end
 
 """
@@ -94,7 +102,7 @@ function trayectoria_animada(sistema;
 
     # Agregar los controles:
     if !isnothing(controles)
-        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.sistema, objetos.avanzando, trayectoria_observable, donde=controles)
+        objetos_de_los_controles = agregar_controles!(objetos.fig, objetos.sistema, objetos.avanzando, trayectoria_observable, objetos.time_step, objetos.time_correction, donde=controles)
     else
         objetos_de_los_controles = nothing
     end

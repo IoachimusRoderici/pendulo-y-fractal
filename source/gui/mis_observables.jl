@@ -125,3 +125,13 @@ function get_medidor_de_velocidad(sistema_observable; buffer_length=20)
     
     return velocidades
 end
+
+"""
+Subscribes one Observable to another, making it so that whenever source
+is notified, its value is assigned to listener.
+"""
+function repeat!(listener, source)
+    on(source) do value
+        listener[] = value
+    end
+end

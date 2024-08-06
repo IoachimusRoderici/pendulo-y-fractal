@@ -7,6 +7,4 @@ Esto incluye (eventualmente) tres componentes:
 - Plots de timeseries para debuggear.
 - Controles y sliders.
 
-En este momento está implementado el primer punto con el plot de la trayectoria. El segundo punto no está implementado en absoluto, y del tercero hay solamente un botón de pausa y un botón para borrar la línea de la trayectoria.
-
-El siguiente paso debería ser agregar un observable que informe la velocidad de la simulación (Δt del sistema sobre Δt del reloj), y dos sliders para controlar `time_step` y `time_correction`.
+En este momento está implementado el primer punto con el plot de la trayectoria y el tercero con botón de pausa, botón para borrar la trayectoria, y slider para controlar la velocidad. El segundo punto no está implementado en absoluto.
